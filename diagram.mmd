@@ -1,10 +1,10 @@
 erDiagram
 
-CUSTOMER ||--|{  ORDER : places
+CUSTOMER ||--o{  ORDER : places
 ORDER ||--|{ ORDER_ITEM : contains
-PRODUCT ||--|{ ORDER_ITEM : ordered_as
-CATEGORY ||--|{ PRODUCT : classifies
-BRAND ||--|{ PRODUCT : manufactures
+PRODUCT ||--o{ ORDER_ITEM : ordered_as
+CATEGORY ||--o{ PRODUCT : classifies
+BRAND ||--o{ PRODUCT : manufactures
 
 CUSTOMER {
     uuid id PK
