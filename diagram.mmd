@@ -1,0 +1,53 @@
+erDiagram
+
+CUSTOMER ||--o{  ORDER : places
+ORDER ||--|{ ORDER_ITEM : contains
+PRODUCT ||--o{ ORDER_ITEM : ordered_as
+CATEGORY ||--o{ PRODUCT : classifies
+BRAND ||--o{ PRODUCT : manufactures
+
+CUSTOMER {
+    uuid id PK
+    string full_name
+    string email
+    string phone
+    timestamp registered_at
+}
+
+ORDER {
+    uuid id PK
+    uuid customer_id FK
+    string status
+    decimal total_amount
+    timestamp created_at
+}
+
+ORDER ITEM {
+    uuid id PK
+    uuid order_id FK
+    uuid product_id FK
+    int quantity
+    decimal unit_price
+}
+
+PRODUCT {
+    uuid id PK
+    uuid category_id FK
+    uuid brand_id FK
+    string sku
+    string title
+    decimal current_price
+    int stock_quantity
+}
+
+CATEGORY {
+    uuid id PK
+    string name
+    string slug
+}
+
+BRAND {
+    uuid id PK
+    string name
+    string country
+}
