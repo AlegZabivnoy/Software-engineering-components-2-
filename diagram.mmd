@@ -1,6 +1,6 @@
 erDiagram
 
-CUSTOMER ||--o{  ORDER : places
+CUSTOMER ||--o{ ORDER : places
 ORDER ||--|{ ORDER_ITEM : contains
 PRODUCT ||--o{ ORDER_ITEM : ordered_as
 CATEGORY ||--o{ PRODUCT : classifies
@@ -22,7 +22,7 @@ ORDER {
     timestamp created_at
 }
 
-ORDER ITEM {
+ORDER_ITEM {
     uuid id PK
     uuid order_id FK
     uuid product_id FK
