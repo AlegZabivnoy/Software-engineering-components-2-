@@ -5,6 +5,9 @@ ORDER ||--|{ ORDER_ITEM : contains
 PRODUCT ||--o{ ORDER_ITEM : ordered_as
 CATEGORY ||--o{ PRODUCT : classifies
 BRAND ||--o{ PRODUCT : manufactures
+CUSTOMER ||--o| CART : has
+CART ||--o{ CART_ITEM : contains
+PRODUCT ||--o{ CART_ITEM : added_as
 
 CUSTOMER {
     uuid id PK
@@ -50,4 +53,17 @@ BRAND {
     uuid id PK
     string name
     string country
+}
+
+CART {
+    uuid id PK
+    uuid customer_id FK
+    timestamp created_at
+}
+
+CART_ITEM {
+    uuid id PK
+    uuid cart_id FK
+    uuid product_id FK
+    int quantity
 }
