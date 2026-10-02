@@ -8,6 +8,8 @@ BRAND ||--o{ PRODUCT : manufactures
 CUSTOMER ||--o| CART : has
 CART ||--o{ CART_ITEM : contains
 PRODUCT ||--o{ CART_ITEM : added_as
+ORDER ||--o| PAYMENT : paid_via
+ORDER ||--o| DELIVERY : shipped_via
 
 CUSTOMER {
     uuid id PK
@@ -66,4 +68,21 @@ CART_ITEM {
     uuid cart_id FK
     uuid product_id FK
     int quantity
+}
+
+PAYMENT {
+    uuid id PK
+    uuid order_id FK
+    string provider
+    string status
+    string transaction_id
+    timestamp processed_at
+}
+
+DELIVERY {
+    uuid id PK
+    uuid order_id FK
+    string city
+    string branch_id
+    string ttn
 }
