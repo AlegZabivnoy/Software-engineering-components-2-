@@ -1,4 +1,5 @@
 flowchart LR
+    User("User<br/>(Будь-який користувач)")
     Guest("Guest<br/>(Гість)")
     Customer("Customer<br/>(Клієнт)")
     Pay[["Payment API<br/>(зовнішня система)"]]
@@ -7,6 +8,9 @@ flowchart LR
     subgraph System["Онлайн-магазин техніки"]
         UC01(["UC-01 Переглянути каталог"])
         UC02(["UC-02 Відфільтрувати товари"])
+        UC10(["UC-10 Шукати товар"])
+        UC11(["UC-11 Зареєструватися"])
+        UC12(["UC-12 Увійти в обліковий запис"])
         UC03(["UC-03 Оформити замовлення"])
         UC04(["UC-04 Перевірити наявність товару"])
         UC05(["UC-05 Обрати відділення Нової Пошти"])
@@ -16,10 +20,14 @@ flowchart LR
         UC09(["UC-09 Зареєструвати ТТН"])
     end
 
-    Customer ==>|"узагальнення (Customer успадковує Guest)"| Guest
+    Guest ==>|"узагальнення"| User
+    Customer ==>|"узагальнення"| User
 
-    Guest --- UC01
-    Guest --- UC02
+    User --- UC01
+    User --- UC02
+    User --- UC10
+    Guest --- UC11
+    Guest --- UC12
     Customer --- UC03
     Customer --- UC06
     Customer --- UC07
