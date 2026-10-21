@@ -1,0 +1,47 @@
+sequenceDiagram
+    autonumber
+    actor C as Customer (Клієнт)
+    participant UI as WebUI
+    participant OS as OrderService
+    participant DS as DeliveryService
+    participant NP as Nova Poshta API
+    participant CR as CartRepository
+    participant PR as ProductRepository
+    participant OR as OrderRepository
+
+    C->>UI: натискає «Оформити замовлення»
+
+    opt доставка Новою Поштою
+        C->>UI: вводить місто
+        UI->>DS: getBranches(city)
+        DS->>NP: getWarehouses(city)
+        NP-->>DS: warehouses[]
+        DS-->>UI: branches[]
+        C->>UI: обирає відділення
+    end
+
+    UI->>OS: createOrder(customerId, deliveryData)
+    OS->>CR: getCartItems(customerId)
+    CR-->>OS: cartItems[]
+
+    loop для кожної позиції кошика
+        OS->>PR: getProduct(productId)
+        PR-->>OS: stockQuantity, currentPrice
+    end
+
+    alt кількість у кошику більша за залишок
+        OS-->>UI: error INSUFFICIENT_STOCK
+        UI-->>C: «Недостатня кількість товару»
+    else товару достатньо
+        OS->>OR: saveOrder(customerId, items, totalAmount, status="нове")
+        OR-->>OS: orderId
+        loop для кожної позиції кошика
+            OS->>PR: decreaseStock(productId, quantity)
+        end
+        opt доставка Новою Поштою
+            OS->>DS: saveDelivery(orderId, city, branchId)
+        end
+        OS->>CR: clearCart(customerId)
+        OS-->>UI: orderId
+        UI-->>C: «Замовлення оформлено»
+    end

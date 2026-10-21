@@ -19,3 +19,4 @@
 * `AI/AI-promts.md` — історія промтів 
 * `use-case.puml` — Use Case діаграма (рендер — `Use-Case-Render.png`)
 * `traceability.md` — матриця трасування «вимога ↔ UC/сценарій»
+* `sequence.mmd` — Sequence діаграма UC-03 «Оформити замовлення» у синтаксисі Mermaid
