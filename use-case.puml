@@ -1,0 +1,51 @@
+@startuml
+left to right direction
+
+actor "User\n(Будь-який користувач)" as User
+actor "Guest\n(Гість)" as Guest
+actor "Customer\n(Клієнт)" as Customer
+actor "Manager\n(Менеджер магазину)" as Manager
+actor "Payment API" as Pay <<зовнішня система>>
+actor "Nova Poshta API" as NP <<зовнішня система>>
+
+Guest -|> User
+Customer -|> User
+
+rectangle "Онлайн-магазин техніки" {
+  usecase "UC-01 Переглянути каталог" as UC01
+  usecase "UC-02 Відфільтрувати товари" as UC02
+  usecase "UC-10 Шукати товар" as UC10
+  usecase "UC-11 Зареєструватися" as UC11
+  usecase "UC-12 Увійти в обліковий запис" as UC12
+  usecase "UC-13 Додати товар у кошик" as UC13
+  usecase "UC-03 Оформити замовлення" as UC03
+  usecase "UC-04 Перевірити наявність товару" as UC04
+  usecase "UC-05 Обрати відділення Нової Пошти" as UC05
+  usecase "UC-06 Оплатити замовлення" as UC06
+  usecase "UC-07 Скасувати замовлення" as UC07
+  usecase "UC-08 Переглянути історію та статус замовлень" as UC08
+  usecase "UC-14 Відправити замовлення" as UC14
+  usecase "UC-09 Зареєструвати ТТН" as UC09
+}
+
+User --> UC01
+User --> UC02
+User --> UC10
+Guest --> UC11
+Guest --> UC12
+Customer --> UC13
+Customer --> UC03
+Customer --> UC06
+Customer --> UC07
+Customer --> UC08
+Manager --> UC14
+
+UC06 --> Pay
+UC05 --> NP
+UC09 --> NP
+
+UC03 ..> UC04 : <<include>>
+UC14 ..> UC09 : <<include>>
+UC05 ..> UC03 : <<extend>>
+UC02 ..> UC01 : <<extend>>
+@enduml
