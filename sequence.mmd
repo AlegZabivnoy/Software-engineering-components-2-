@@ -24,23 +24,30 @@ sequenceDiagram
     OS->>CR: getCartItems(customerId)
     CR-->>OS: cartItems[]
 
-    loop для кожної позиції кошика
-        OS->>PR: getProduct(productId)
-        PR-->>OS: stockQuantity, currentPrice
+    critical транзакція: перевірка та зменшення залишку
+        loop для кожної позиції кошика
+            OS->>PR: getProductForUpdate(productId)
+            PR-->>OS: stockQuantity, currentPrice
+        end
+
+        alt кількість у кошику більша за залишок
+            OS->>OS: rollback()
+            OS-->>UI: error INSUFFICIENT_STOCK
+            UI-->>C: «Недостатня кількість товару»
+        else товару достатньо
+            OS->>OR: saveOrder(customerId, items, totalAmount, status="нове")
+            OR-->>OS: orderId
+            loop для кожної позиції кошика
+                OS->>PR: decreaseStock(productId, quantity)
+            end
+            OS->>OS: commit()
+        end
     end
 
-    alt кількість у кошику більша за залишок
-        OS-->>UI: error INSUFFICIENT_STOCK
-        UI-->>C: «Недостатня кількість товару»
-    else товару достатньо
-        OS->>OR: saveOrder(customerId, items, totalAmount, status="нове")
-        OR-->>OS: orderId
-        loop для кожної позиції кошика
-            OS->>PR: decreaseStock(productId, quantity)
-        end
-        opt доставка Новою Поштою
-            OS->>DS: saveDelivery(orderId, city, branchId)
-        end
+    opt замовлення створено і доставка Новою Поштою
+        OS->>DS: saveDelivery(orderId, city, branchId)
+    end
+    opt замовлення створено
         OS->>CR: clearCart(customerId)
         OS-->>UI: orderId
         UI-->>C: «Замовлення оформлено»
