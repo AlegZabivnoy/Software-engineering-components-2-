@@ -35,6 +35,7 @@ sequenceDiagram
             OS-->>UI: error INSUFFICIENT_STOCK
             UI-->>C: «Недостатня кількість товару»
         else товару достатньо
+            OS->>OS: calculateTotal(items) — Σ quantity х currentPrice
             OS->>OR: saveOrder(customerId, items, totalAmount, deliveryMethod, status="нове")
             OR-->>OS: orderId
             loop для кожної позиції кошика
