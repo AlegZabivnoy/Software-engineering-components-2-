@@ -14,8 +14,8 @@ sequenceDiagram
     opt доставка Новою Поштою
         C->>UI: вводить місто
         UI->>DS: getBranches(city)
-        DS->>NP: getWarehouses(city)
-        NP-->>DS: warehouses[]
+        DS->>NP: getBranches(city)
+        NP-->>DS: branches[]
         DS-->>UI: branches[]
         C->>UI: обирає відділення
     end
