@@ -361,3 +361,101 @@ adr/0003-atomic-stock-decrease.md
 * На sequence-діаграмі ці кроки виділено блоком `critical` («транзакція»)
 * Товар повертається на склад при скасуванні замовлення (Req-03)
 * У майбутньому може знадобитися автоматичне скасування неоплачених замовлень через певний час, щоб не тримати товар
+
+## 8. sequence діаграми - розділення на сценарії
+**Промт**
+> Викладач оновив завдання прочитай та зроби діаграми як потібно по новим вимогам
+
+**Відповідь від AI**
+Diagrams/sequence-uc03-success.mmd, Diagrams/sequence-uc03-no-stock.mmd
+
+> sequence-uc03-success.mmd
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Customer (Клієнт)
+    participant UI as WebUI
+    participant OS as OrderService
+    participant DS as DeliveryService
+    participant NP as Nova Poshta API
+    participant CR as CartRepository
+    participant PR as ProductRepository
+    participant OR as OrderRepository
+
+    C->>UI: натискає «Оформити замовлення»
+
+    opt доставка Новою Поштою
+        C->>UI: вводить місто
+        UI->>DS: getBranches(city)
+        activate DS
+        DS->>NP: getBranches(city)
+        activate NP
+        NP-->>DS: branches[]
+        deactivate NP
+        DS-->>UI: branches[]
+        deactivate DS
+        C->>UI: обирає відділення
+    end
+
+    UI->>OS: createOrder(customerId, deliveryData)
+    activate OS
+    OS->>CR: getCartItems(customerId)
+    CR-->>OS: cartItems[]
+
+    critical транзакція: перевірка та зменшення залишку
+        loop для кожної позиції кошика
+            OS->>PR: getProductForUpdate(productId)
+            PR-->>OS: stockQuantity, currentPrice
+        end
+        OS->>OS: calculateTotal(items) — Σ quantity х currentPrice
+        OS->>OR: saveOrder(customerId, items, totalAmount, deliveryMethod, status="нове")
+        OR-->>OS: orderId
+        loop для кожної позиції кошика
+            OS->>PR: decreaseStock(productId, quantity)
+        end
+        OS->>OS: commit()
+    end
+
+    opt доставка Новою Поштою
+        OS->>DS: saveDelivery(orderId, city, branchId)
+    end
+    OS->>CR: clearCart(customerId)
+    OS-->>UI: orderId
+    deactivate OS
+    UI-->>C: «Замовлення оформлено»
+```
+
+> sequence-uc03-no-stock.mmd
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Customer (Клієнт)
+    participant UI as WebUI
+    participant OS as OrderService
+    participant CR as CartRepository
+    participant PR as ProductRepository
+
+    C->>UI: натискає «Оформити замовлення»
+    UI->>OS: createOrder(customerId, deliveryData)
+    activate OS
+    OS->>CR: getCartItems(customerId)
+    CR-->>OS: cartItems[]
+
+    critical транзакція: перевірка залишку
+        loop для кожної позиції кошика
+            OS->>PR: getProductForUpdate(productId)
+            PR-->>OS: stockQuantity, currentPrice
+        end
+
+        alt кількість у кошику більша за залишок
+            OS->>OS: rollback()
+            OS-->>UI: error INSUFFICIENT_STOCK
+            UI-->>C: «Недостатня кількість товару»
+        else товару достатньо
+            Note over OS: далі оформлення замовлення — сценарій 1
+        end
+    end
+    deactivate OS
+```

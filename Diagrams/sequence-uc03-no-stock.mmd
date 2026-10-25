@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor C as Customer (Клієнт)
+    participant UI as WebUI
+    participant OS as OrderService
+    participant CR as CartRepository
+    participant PR as ProductRepository
+
+    C->>UI: натискає «Оформити замовлення»
+    activate UI
+    UI->>OS: createOrder(customerId, deliveryData)
+    activate OS
+    OS->>CR: getCartItems(customerId)
+    CR-->>OS: cartItems[]
+
+    critical транзакція: перевірка залишку
+        loop для кожної позиції кошика
+            OS->>PR: getProductForUpdate(productId)
+            PR-->>OS: stockQuantity, currentPrice
+        end
+
+        alt кількість у кошику більша за залишок
+            OS->>OS: rollback()
+            OS-->>UI: error INSUFFICIENT_STOCK
+            UI-->>C: «Недостатня кількість товару»
+        else товару достатньо
+            Note over OS: далі оформлення замовлення — сценарій 1
+        end
+    end
+    deactivate OS
+    deactivate UI

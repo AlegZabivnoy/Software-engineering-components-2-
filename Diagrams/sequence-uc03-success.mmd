@@ -10,17 +10,23 @@ sequenceDiagram
     participant OR as OrderRepository
 
     C->>UI: натискає «Оформити замовлення»
+    activate UI
 
     opt доставка Новою Поштою
         C->>UI: вводить місто
         UI->>DS: getBranches(city)
+        activate DS
         DS->>NP: getBranches(city)
+        activate NP
         NP-->>DS: branches[]
+        deactivate NP
         DS-->>UI: branches[]
+        deactivate DS
         C->>UI: обирає відділення
     end
 
     UI->>OS: createOrder(customerId, deliveryData)
+    activate OS
     OS->>CR: getCartItems(customerId)
     CR-->>OS: cartItems[]
 
@@ -29,27 +35,20 @@ sequenceDiagram
             OS->>PR: getProductForUpdate(productId)
             PR-->>OS: stockQuantity, currentPrice
         end
-
-        alt кількість у кошику більша за залишок
-            OS->>OS: rollback()
-            OS-->>UI: error INSUFFICIENT_STOCK
-            UI-->>C: «Недостатня кількість товару»
-        else товару достатньо
-            OS->>OS: calculateTotal(items) — Σ quantity х currentPrice
-            OS->>OR: saveOrder(customerId, items, totalAmount, deliveryMethod, status="нове")
-            OR-->>OS: orderId
-            loop для кожної позиції кошика
-                OS->>PR: decreaseStock(productId, quantity)
-            end
-            OS->>OS: commit()
+        OS->>OS: calculateTotal(items) — Σ quantity х currentPrice
+        OS->>OR: saveOrder(customerId, items, totalAmount, deliveryMethod, status="нове")
+        OR-->>OS: orderId
+        loop для кожної позиції кошика
+            OS->>PR: decreaseStock(productId, quantity)
         end
+        OS->>OS: commit()
     end
 
-    opt замовлення створено і доставка Новою Поштою
+    opt доставка Новою Поштою
         OS->>DS: saveDelivery(orderId, city, branchId)
     end
-    opt замовлення створено
-        OS->>CR: clearCart(customerId)
-        OS-->>UI: orderId
-        UI-->>C: «Замовлення оформлено»
-    end
+    OS->>CR: clearCart(customerId)
+    OS-->>UI: orderId
+    deactivate OS
+    UI-->>C: «Замовлення оформлено»
+    deactivate UI
