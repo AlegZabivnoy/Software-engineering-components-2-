@@ -13,10 +13,10 @@
 
 ### 3. Структура репозиторію
 * `spec.md` — актори, цілі, EARS-вимоги, user stories з Gherkin, сутності, атрибути, зв'язки, нефункціональні вимоги
-* `diagram.mmd` — декларативний код ER діаграми у синтаксисі Mermaid
+* `Diagrams/diagram.mmd` — декларативний код ER діаграми у синтаксисі Mermaid
 * `DEFENSE.md` — точка входу для рев'ю результатів аудиту моделі (топ-3 виправлення коміти)
 * `adr/` — ADR на ключові рішення (за MADR)
 * `AI/AI-promts.md` — історія промтів 
-* `use-case.puml` — Use Case діаграма (рендер — `Use-Case-Render.png`)
+* `Diagrams/use-case.puml` — Use Case діаграма (рендер — `Diagrams/Use-Case-Render.png`)
 * `traceability.md` — матриця трасування «вимога ↔ UC/сценарій»
-* `sequence.mmd` — Sequence діаграма UC-03 «Оформити замовлення» у синтаксисі Mermaid
+* `Diagrams/sequence.mmd` — Sequence діаграма UC-03 «Оформити замовлення» у синтаксисі Mermaid
