@@ -11,12 +11,16 @@ sequenceDiagram
     UI->>OS: createOrder(customerId, deliveryData)
     activate OS
     OS->>CR: getCartItems(customerId)
+    activate CR
     CR-->>OS: cartItems[]
+    deactivate CR
 
     critical транзакція: перевірка залишку
         loop для кожної позиції кошика
             OS->>PR: getProductForUpdate(productId)
+            activate PR
             PR-->>OS: stockQuantity, currentPrice
+            deactivate PR
         end
 
         alt кількість у кошику більша за залишок
