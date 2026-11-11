@@ -1,0 +1,69 @@
+sequenceDiagram
+    autonumber
+    actor C as Customer (Клієнт)
+    participant UI as WebUI
+    participant OS as OrderService
+    participant DS as DeliveryService
+    participant NP as Nova Poshta API
+    participant CR as CartRepository
+    participant PR as ProductRepository
+    participant OR as OrderRepository
+
+    C->>UI: натискає «Оформити замовлення»
+    activate UI
+
+    opt доставка Новою Поштою
+        C->>UI: вводить місто
+        UI->>DS: getBranches(city)
+        activate DS
+        DS->>NP: getBranches(city)
+        activate NP
+        NP-->>DS: branches[]
+        deactivate NP
+        DS-->>UI: branches[]
+        deactivate DS
+        C->>UI: обирає відділення
+    end
+
+    UI->>OS: createOrder(customerId, deliveryData)
+    activate OS
+    OS->>CR: getCartItems(customerId)
+    activate CR
+    CR-->>OS: cartItems[]
+    deactivate CR
+
+    critical транзакція: перевірка та зменшення залишку
+        loop для кожної позиції кошика
+            OS->>PR: getProductForUpdate(productId)
+            activate PR
+            PR-->>OS: stockQuantity, currentPrice
+            deactivate PR
+        end
+        OS->>OS: calculateTotal(items) — Σ quantity х currentPrice
+        OS->>OR: saveOrder(customerId, items, totalAmount, deliveryMethod, status="нове")
+        activate OR
+        OR-->>OS: orderId
+        deactivate OR
+        loop для кожної позиції кошика
+            OS->>PR: decreaseStock(productId, quantity)
+            activate PR
+            PR-->>OS: stockUpdated
+            deactivate PR
+        end
+        OS->>OS: commit()
+    end
+
+    opt доставка Новою Поштою
+        OS->>DS: saveDelivery(orderId, city, branchId)
+        activate DS
+        DS-->>OS: deliveryId
+        deactivate DS
+    end
+    OS->>CR: clearCart(customerId)
+    activate CR
+    CR-->>OS: cartCleared
+    deactivate CR
+    OS-->>UI: orderId
+    deactivate OS
+    UI-->>C: «Замовлення оформлено»
+    deactivate UI
