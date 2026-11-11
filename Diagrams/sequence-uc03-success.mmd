@@ -53,16 +53,19 @@ sequenceDiagram
         OS->>OS: commit()
     end
 
-    opt доставка Новою Поштою
-        OS->>DS: saveDelivery(orderId, city, branchId)
-        activate DS
-        DS-->>OS: deliveryId
-        deactivate DS
+        par збереження доставки
+        opt доставка Новою Поштою
+            OS->>DS: saveDelivery(orderId, city, branchId)
+            activate DS
+            DS-->>OS: deliveryId
+            deactivate DS
+        end
+    and очищення кошика
+        OS->>CR: clearCart(customerId)
+        activate CR
+        CR-->>OS: cartCleared
+        deactivate CR
     end
-    OS->>CR: clearCart(customerId)
-    activate CR
-    CR-->>OS: cartCleared
-    deactivate CR
     OS-->>UI: orderId
     deactivate OS
     UI-->>C: «Замовлення оформлено»
