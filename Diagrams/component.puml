@@ -1,10 +1,6 @@
 @startuml
 top to bottom direction
 
-actor "Customer\n(Клієнт)" as Customer
-actor "Guest\n(Гість)" as Guest
-actor "Manager\n(Менеджер)" as Manager
-
 rectangle "Онлайн-магазин техніки" {
 
   package "UI" {
@@ -12,8 +8,8 @@ rectangle "Онлайн-магазин техніки" {
   }
 
   package "API / Backend" {
-    [REST API]
-    interface "IRestApi" as IRestApi
+    [Backend API]
+    interface "IApi" as IApi
     interface "IPaymentCallback" as IPaymentCallback
   }
 
@@ -53,30 +49,25 @@ rectangle "Онлайн-магазин техніки" {
   }
 }
 
-[Payment API] <<зовнішня система>> as PayAPI
-[Nova Poshta API] <<зовнішня система>> as NPAPI
-[Хмарне сховище] <<зовнішня система>> as Cloud
+component "Payment API" as PayAPI <<зовнішня система>>
+component "Nova Poshta API" as NPAPI <<зовнішня система>>
+component "Хмарне сховище" as Cloud <<зовнішня система>>
 interface "IPaymentGateway" as IGateway
 interface "INovaPoshta" as INP
 interface "ICloudStorage" as ICloud
 
-' --- актори ---
-Customer --> WebUI
-Guest --> WebUI
-Manager --> WebUI
-
 ' --- UI -> API ---
-WebUI ..> IRestApi
-[REST API] -- IRestApi
-[REST API] -- IPaymentCallback
+WebUI ..> IApi
+[Backend API] -- IApi
+[Backend API] -- IPaymentCallback
 
 ' --- API -> сервіси ---
-[REST API] ..> ICatalog
-[REST API] ..> IAuth
-[REST API] ..> ICart
-[REST API] ..> IOrder
-[REST API] ..> IPayment
-[REST API] ..> IDelivery
+[Backend API] ..> ICatalog
+[Backend API] ..> IAuth
+[Backend API] ..> ICart
+[Backend API] ..> IOrder
+[Backend API] ..> IPayment
+[Backend API] ..> IDelivery
 
 ' --- провайдери сервісів ---
 CatalogService -- ICatalog
