@@ -20,3 +20,4 @@
 * `Diagrams/use-case.puml` — Use Case діаграма (рендер — `Diagrams/Use-Case-Render.png`)
 * `traceability.md` — матриця трасування «вимога ↔ UC/сценарій»
 * `Diagrams/sequence-uc03-success.mmd`, `Diagrams/sequence-uc03-no-stock.mmd` — Sequence діаграми двох сценаріїв UC-03 «Оформити замовлення» у синтаксисі Mermaid
+* `Diagrams/activity-uc03.mmd` — Activity діаграма процесу UC-03 «Оформити замовлення» у синтаксисі Mermaid
