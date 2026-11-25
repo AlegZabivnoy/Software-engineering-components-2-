@@ -222,7 +222,16 @@ IF Nova Poshta API повертає помилку або не відповід�
 **Зовнішні інтеграції:**
 * Payment API — приймає платіж (`IPaymentGateway`) і повертає результат (`IPaymentCallback`)
 * Nova Poshta API — відділення та реєстрація ТТН (`INovaPoshta`)
-* Хмарне сховище — резервні копії (`ICloudStorage`)
+* Хмарне сховище — резервні копії (`ICloudStorage`)\
+
+**Операції інтерфейсів:**
+* `IOrderService`: `createOrder(customerId, deliveryData)` (sequence), `cancelOrder(orderId)` (Req-03)
+* `IDeliveryService`: `getBranches(city)`, `saveDelivery(orderId, city, branchId)` (sequence), `registerTtn(orderId)` (Req-15)
+* `IProductRepository`: `getProductForUpdate(productId)`, `decreaseStock(productId, quantity)` (sequence), `increaseStock(productId, quantity)` (Req-03)
+* `ICartRepository`: `getCartItems(customerId)`, `clearCart(customerId)` (sequence)
+* `IOrderRepository`: `saveOrder(...)` (sequence), `updateStatus(orderId, status)` (Req-03, Req-15)
+* `INovaPoshta`: `getBranches(city)` (sequence), реєстрація ТТН (Req-15)
+* операції інших інтерфейсів відповідають їхнім UC і вимогам 
 
 ## Сутності та їхні атрибути 
 * **Customer (Покупець):**
