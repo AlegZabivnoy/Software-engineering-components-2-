@@ -2,13 +2,16 @@ sequenceDiagram
     autonumber
     actor C as Customer (Клієнт)
     participant UI as WebUI
+    participant API as Backend API
     participant OS as OrderService
     participant CR as CartRepository
     participant PR as ProductRepository
 
     C->>UI: натискає «Оформити замовлення»
     activate UI
-    UI->>OS: createOrder(customerId, deliveryData)
+    UI->>API: createOrder(customerId, deliveryData)
+    activate API
+    API->>OS: createOrder(customerId, deliveryData)
     activate OS
     OS->>CR: getCartItems(customerId)
     activate CR
@@ -25,11 +28,13 @@ sequenceDiagram
 
         alt кількість у кошику більша за залишок
             OS->>OS: rollback()
-            OS-->>UI: error INSUFFICIENT_STOCK
+            OS-->>API: error INSUFFICIENT_STOCK
+            API-->>UI: error INSUFFICIENT_STOCK
             UI-->>C: «Недостатня кількість товару»
         else товару достатньо
             Note over OS: далі оформлення замовлення — сценарій 1
         end
     end
     deactivate OS
+    deactivate API
     deactivate UI
