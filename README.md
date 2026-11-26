@@ -21,3 +21,5 @@
 * `traceability.md` — матриця трасування «вимога ↔ UC/сценарій»
 * `Diagrams/sequence-uc03-success.mmd`, `Diagrams/sequence-uc03-no-stock.mmd` — Sequence діаграми двох сценаріїв UC-03 «Оформити замовлення» у синтаксисі Mermaid
 * `Diagrams/activity-uc03.mmd` — Activity діаграма процесу UC-03 «Оформити замовлення» у синтаксисі Mermaid
+* `Diagrams/component-overview.puml` — оглядова Component діаграма: межа системи, WebUI, Backend, БД, зовнішні системи (рендер — `Diagrams/overview-render.png`)
+* `Diagrams/component-backend.puml` — Component діаграма Backend: Backend API, сервіси, репозиторії (рендер — `Diagrams/backend-render.png`)

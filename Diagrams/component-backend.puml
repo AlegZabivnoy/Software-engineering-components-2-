@@ -1,0 +1,89 @@
+@startuml
+left to right direction
+
+interface "IApi" as IApi
+interface "IPaymentCallback" as IPaymentCallback
+
+component "Backend" {
+  component "Backend API" as API
+
+  interface "ICatalogService" as ICatalog
+  interface "IAuthService" as IAuth
+  interface "ICartService" as ICart
+  interface "IOrderService" as IOrder
+  interface "IPaymentService" as IPayment
+  interface "IDeliveryService" as IDelivery
+
+  component "CatalogService" as CatalogService
+  component "AuthService" as AuthService
+  component "CartService" as CartService
+  component "OrderService" as OrderService
+  component "PaymentService" as PaymentService
+  component "DeliveryService" as DeliveryService
+
+  interface "IProductRepository" as IProductRepo
+  interface "ICustomerRepository" as ICustomerRepo
+  interface "ICartRepository" as ICartRepo
+  interface "IOrderRepository" as IOrderRepo
+  interface "IPaymentRepository" as IPaymentRepo
+  interface "IDeliveryRepository" as IDeliveryRepo
+
+  component "ProductRepository" as ProductRepository
+  component "CustomerRepository" as CustomerRepository
+  component "CartRepository" as CartRepository
+  component "OrderRepository" as OrderRepository
+  component "PaymentRepository" as PaymentRepository
+  component "DeliveryRepository" as DeliveryRepository
+}
+
+interface "SQL" as ISQL
+interface "IPaymentGateway" as IGateway
+interface "INovaPoshta" as INP
+
+note top of IApi : споживачі зовнішніх\nінтерфейсів — на оглядовій діаграмі
+
+IApi -- API
+IPaymentCallback -- API
+
+API ..> ICatalog
+API ..> IAuth
+API ..> ICart
+API ..> IOrder
+API ..> IPayment
+API ..> IDelivery
+
+ICatalog -- CatalogService
+IAuth -- AuthService
+ICart -- CartService
+IOrder -- OrderService
+IPayment -- PaymentService
+IDelivery -- DeliveryService
+
+CatalogService ..> IProductRepo
+AuthService ..> ICustomerRepo
+CartService ..> ICartRepo
+OrderService ..> ICartRepo
+OrderService ..> IProductRepo
+OrderService ..> IOrderRepo
+OrderService ..> IDelivery
+PaymentService ..> IPaymentRepo
+PaymentService ..> IOrderRepo
+PaymentService ..> IGateway
+DeliveryService ..> IDeliveryRepo
+DeliveryService ..> IOrderRepo
+DeliveryService ..> INP
+
+IProductRepo -- ProductRepository
+ICustomerRepo -- CustomerRepository
+ICartRepo -- CartRepository
+IOrderRepo -- OrderRepository
+IPaymentRepo -- PaymentRepository
+IDeliveryRepo -- DeliveryRepository
+
+ProductRepository ..> ISQL
+CustomerRepository ..> ISQL
+CartRepository ..> ISQL
+OrderRepository ..> ISQL
+PaymentRepository ..> ISQL
+DeliveryRepository ..> ISQL
+@enduml

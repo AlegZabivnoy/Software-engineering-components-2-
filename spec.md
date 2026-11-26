@@ -3,6 +3,7 @@
 2. Описати вимоги до системи у форматі EARS, user stories з Gherkin сценаріями, зробити use case діаграму та матрицю трасування, узгоджені з моделлю даних
 3. показати на sequence діаграмі, як саме відбувається оформлення замовлення (UC-03): хто кого викликає, в якому порядку і що відбувається, якщо товару не вистачає
 4. описати процес оформлення замовлення (UC-03) Activity діаграмою: кроки, ролі, розгалуження, паралельні дії та повідомлення Новій Пошті
+5. описати архітектуру магазину діаграмою компонентів: компоненти, інтерфейси, залежності, межу системи та зовнішні інтеграції
 
 ## Актори
 
@@ -179,7 +180,7 @@ IF Nova Poshta API повертає помилку або не відповід�
 
 **Ролі (swimlanes):**
 * Клієнт — актор Customer
-* Система (магазин) — WebUI, OrderService, DeliveryService та репозиторії з діаграм послідовності
+* Система (магазин) — WebUI, Backend API, OrderService, DeliveryService та репозиторії з діаграм послідовності
 * Nova Poshta API — зовнішня система
 
 **Кроки:**
@@ -205,6 +206,33 @@ IF Nova Poshta API повертає помилку або не відповід�
 | US-01, сценарій 2: недостатньо товару | товару достатньо [ні] → «Недостатня кількість товару» → кінець |
 | US-02, сценарій 1: вибір відділення | [Нова Пошта] → запит → [так] → «Обрати відділення» → далі як US-01/1 |
 | US-02, сценарій 2: служба недоступна | [Нова Пошта] → запит → [ні] → «тимчасово недоступний, повторити спробу?» → [так] новий запит / [ні] назад до вибору доставки |
+
+## Архітектура: компоненти та інтерфейси (Завдання 5)
+Діаграми — оглядова `Diagrams/component-overview.puml` (рендер — `Diagrams/overview-render.png`) і зум у Backend `Diagrams/component-backend.puml` (рендер — `Diagrams/backend-render.png`).
+
+**Межа системи:** «Онлайн-магазин техніки» — усе всередині прямокутника. Зовні лишаються Payment API, Nova Poshta API і хмарне сховище, вони взаємодіють із системою лише через інтерфейси
+
+**Модулі:**
+* UI — `WebUI`: інтерфейс клієнта, гостя й менеджера
+* Backend — містить Backend API, сервіси та Data Access; на оглядовій діаграмі показаний одним компонентом
+* API/Backend — `Backend API`: приймає запити від UI, перевіряє авторизацію (Req-11), приймає результат оплати від Payment API (`IPaymentCallback`)
+* Сервіси — `CatalogService`, `AuthService`, `CartService`, `OrderService`, `PaymentService`, `DeliveryService`; кожен надає інтерфейс (`ICatalogService`, `IAuthService`, `ICartService`, `IOrderService`, `IPaymentService`, `IDeliveryService`)
+* Data Access — по одному репозиторію на групу сутностей: `CustomerRepository`, `ProductRepository`, `CartRepository`, `OrderRepository`, `PaymentRepository`, `DeliveryRepository`
+* БД — `База даних` (інтерфейс `SQL`), щоденно копіюється в хмарне сховище (NFR-01)
+
+**Зовнішні інтеграції:**
+* Payment API — приймає платіж (`IPaymentGateway`) і повертає результат (`IPaymentCallback`)
+* Nova Poshta API — відділення та реєстрація ТТН (`INovaPoshta`)
+* Хмарне сховище — резервні копії (`ICloudStorage`)\
+
+**Операції інтерфейсів:**
+* `IOrderService`: `createOrder(customerId, deliveryData)` (sequence), `cancelOrder(orderId)` (Req-03)
+* `IDeliveryService`: `getBranches(city)`, `saveDelivery(orderId, city, branchId)` (sequence), `registerTtn(orderId)` (Req-15)
+* `IProductRepository`: `getProductForUpdate(productId)`, `decreaseStock(productId, quantity)` (sequence), `increaseStock(productId, quantity)` (Req-03)
+* `ICartRepository`: `getCartItems(customerId)`, `clearCart(customerId)` (sequence)
+* `IOrderRepository`: `saveOrder(...)` (sequence), `updateStatus(orderId, status)` (Req-03, Req-15)
+* `INovaPoshta`: `getBranches(city)` (sequence), реєстрація ТТН (Req-15)
+* операції інших інтерфейсів відповідають їхнім UC і вимогам 
 
 ## Сутності та їхні атрибути 
 * **Customer (Покупець):**
@@ -294,3 +322,8 @@ IF Nova Poshta API повертає помилку або не відповід�
 * Кожен Gherkin сценарій UC-03 (US-01, US-02) має свій шлях на activity діаграмі
 * Activity діаграма не має недосяжних кроків і дір у переходах, умови розгалужень вичерпні, кожен fork закривається join
 * Повідомлення процесу відповідають повідомленням діаграм послідовності
+* Кожен компонент трасується до сутності ER моделі, вимоги або UC, а якщо він є на sequence чи activity діаграмі - до відповідного учасника чи доріжки
+* Кожен required інтерфейс має компонент або зовнішню систему, що його надає (provided)
+* Кожна залежність між компонентами відповідає виклику на sequence діаграмі, вимозі, UC або сутності ER моделі
+* Зовнішні системи (Payment API, Nova Poshta API, хмарне сховище) розташовані поза межею системи й взаємодіють з нею лише через інтерфейси
+* Учасники sequence діаграм відповідають компонентам архітектури, а UI звертається до сервісів через Backend API

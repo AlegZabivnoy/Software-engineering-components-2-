@@ -2,6 +2,7 @@ sequenceDiagram
     autonumber
     actor C as Customer (Клієнт)
     participant UI as WebUI
+    participant API as Backend API
     participant OS as OrderService
     participant DS as DeliveryService
     participant NP as Nova Poshta API
@@ -14,18 +15,24 @@ sequenceDiagram
 
     opt доставка Новою Поштою
         C->>UI: вводить місто
-        UI->>DS: getBranches(city)
+        UI->>API: getBranches(city)
+        activate API
+        API->>DS: getBranches(city)
         activate DS
         DS->>NP: getBranches(city)
         activate NP
         NP-->>DS: branches[]
         deactivate NP
-        DS-->>UI: branches[]
+        DS-->>API: branches[]
         deactivate DS
+        API-->>UI: branches[]
+        deactivate API
         C->>UI: обирає відділення
     end
 
-    UI->>OS: createOrder(customerId, deliveryData)
+    UI->>API: createOrder(customerId, deliveryData)
+    activate API
+    API->>OS: createOrder(customerId, deliveryData)
     activate OS
     OS->>CR: getCartItems(customerId)
     activate CR
@@ -53,7 +60,7 @@ sequenceDiagram
         OS->>OS: commit()
     end
 
-        par збереження доставки
+    par збереження доставки
         opt доставка Новою Поштою
             OS->>DS: saveDelivery(orderId, city, branchId)
             activate DS
@@ -66,7 +73,9 @@ sequenceDiagram
         CR-->>OS: cartCleared
         deactivate CR
     end
-    OS-->>UI: orderId
+    OS-->>API: orderId
     deactivate OS
+    API-->>UI: orderId
+    deactivate API
     UI-->>C: «Замовлення оформлено»
     deactivate UI

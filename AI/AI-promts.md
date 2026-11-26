@@ -532,3 +532,192 @@ end
 | US-01, сценарій 2: недостатньо товару | товару достатньо [ні] → «Недостатня кількість товару» → кінець |
 | US-02, сценарій 1: вибір відділення | [Нова Пошта] → запит → [так] → «Обрати відділення» → далі як US-01/1 |
 | US-02, сценарій 2: служба недоступна | [Нова Пошта] → запит → [ні] → «тимчасово недоступний» → назад до вибору доставки |
+
+## 11. component.puml 
+**Промт**
+> зроби мені component діаграму в plantuml там мають бути ui, api, сервіси, data access і бд, плюс зовнішні системи які в мене є, покажи інтерфейси які кожен компонент дає і які йому треба, і межу системи,назви бери з моїх sequence діаграм
+
+**Відповідь від AI**
+@startuml
+top to bottom direction
+
+actor "Customer\n(Клієнт)" as Customer
+actor "Guest\n(Гість)" as Guest
+actor "Manager\n(Менеджер)" as Manager
+
+rectangle "Онлайн-магазин техніки" {
+
+package "UI" {
+[WebUI]
+}
+
+package "API / Backend" {
+[REST API]
+interface "IRestApi" as IRestApi
+interface "IPaymentCallback" as IPaymentCallback
+}
+
+package "Сервіси" {
+[CatalogService]
+[AuthService]
+[CartService]
+[OrderService]
+[PaymentService]
+[DeliveryService]
+interface "ICatalogService" as ICatalog
+interface "IAuthService" as IAuth
+interface "ICartService" as ICart
+interface "IOrderService" as IOrder
+interface "IPaymentService" as IPayment
+interface "IDeliveryService" as IDelivery
+}
+
+package "Data Access" {
+[CustomerRepository]
+[ProductRepository]
+[CartRepository]
+[OrderRepository]
+[PaymentRepository]
+[DeliveryRepository]
+interface "ICustomerRepository" as ICustomerRepo
+interface "IProductRepository" as IProductRepo
+interface "ICartRepository" as ICartRepo
+interface "IOrderRepository" as IOrderRepo
+interface "IPaymentRepository" as IPaymentRepo
+interface "IDeliveryRepository" as IDeliveryRepo
+}
+
+package "БД" {
+[База даних] as DB
+interface "SQL" as ISQL
+}
+}
+
+[Payment API] <<зовнішня система>> as PayAPI
+[Nova Poshta API] <<зовнішня система>> as NPAPI
+[Хмарне сховище] <<зовнішня система>> as Cloud
+interface "IPaymentGateway" as IGateway
+interface "INovaPoshta" as INP
+interface "ICloudStorage" as ICloud
+
+' --- актори ---
+Customer --> WebUI
+Guest --> WebUI
+Manager --> WebUI
+
+' --- UI -> API ---
+WebUI ..> IRestApi
+[REST API] -- IRestApi
+[REST API] -- IPaymentCallback
+
+' --- API -> сервіси ---
+[REST API] ..> ICatalog
+[REST API] ..> IAuth
+[REST API] ..> ICart
+[REST API] ..> IOrder
+[REST API] ..> IPayment
+[REST API] ..> IDelivery
+
+' --- провайдери сервісів ---
+CatalogService -- ICatalog
+AuthService -- IAuth
+CartService -- ICart
+OrderService -- IOrder
+PaymentService -- IPayment
+DeliveryService -- IDelivery
+
+' --- сервіси -> Data Access та інші сервіси ---
+CatalogService ..> IProductRepo
+AuthService ..> ICustomerRepo
+CartService ..> ICartRepo
+OrderService ..> ICartRepo
+OrderService ..> IProductRepo
+OrderService ..> IOrderRepo
+OrderService ..> IDelivery
+PaymentService ..> IPaymentRepo
+PaymentService ..> IOrderRepo
+PaymentService ..> IGateway
+DeliveryService ..> IDeliveryRepo
+DeliveryService ..> IOrderRepo
+DeliveryService ..> INP
+
+' --- провайдери репозиторіїв ---
+CustomerRepository -- ICustomerRepo
+ProductRepository -- IProductRepo
+CartRepository -- ICartRepo
+OrderRepository -- IOrderRepo
+PaymentRepository -- IPaymentRepo
+DeliveryRepository -- IDeliveryRepo
+
+' --- Data Access -> БД ---
+CustomerRepository ..> ISQL
+ProductRepository ..> ISQL
+CartRepository ..> ISQL
+OrderRepository ..> ISQL
+PaymentRepository ..> ISQL
+DeliveryRepository ..> ISQL
+DB -- ISQL
+DB ..> ICloud
+
+' --- зовнішні системи ---
+PayAPI -- IGateway
+PayAPI ..> IPaymentCallback
+NPAPI -- INP
+Cloud -- ICloud
+@enduml
+
+## 12. допис в traceability 
+**Промт**
+> допиши в traceability.md частину для 5 завдання треба щоб кожен компонент був привязаний до моїх попередніх моделей (сутності, вимоги, sequence, activity) і окремо кожна залежність між компонентами звідки вона взялась
+
+**Відповідь від AI**
+## Трасування компонентів (Завдання 5)
+
+### Компонент → попередні моделі
+| Компонент | Дані (сутності) | Вимоги / UC | Взаємодія (sequence) | Процес (activity) |
+|---|---|---|---|---|
+| WebUI | — | UC-01…UC-03, UC-05…UC-08, UC-10…UC-13 | `WebUI` | доріжка «Система (магазин)» |
+| REST API | — | Req-11 | — | — |
+| CatalogService | PRODUCT, CATEGORY, BRAND | UC-01, UC-02, UC-10; Req-12, Req-13 | — | — |
+| AuthService | CUSTOMER | UC-11, UC-12; Req-07…Req-11; NFR-02 | — | — |
+| CartService | CART, CART_ITEM | UC-13; Req-14 | — | — |
+| OrderService | ORDER, ORDER_ITEM | UC-03, UC-04, UC-07, UC-08; Req-01, Req-03, Req-04 | `OrderService` | доріжка «Система (магазин)» |
+| PaymentService | PAYMENT | UC-06; Req-02 | — | — |
+| DeliveryService | DELIVERY | UC-05, UC-09, UC-14; Req-05, Req-15, Req-16 | `DeliveryService` | доріжка «Система (магазин)» |
+| CustomerRepository | CUSTOMER | UC-11, UC-12 | — | — |
+| ProductRepository | PRODUCT | UC-04; Req-01, Req-04 | `ProductRepository` | доріжка «Система (магазин)» |
+| CartRepository | CART, CART_ITEM | UC-03, UC-13 | `CartRepository` | доріжка «Система (магазин)» |
+| OrderRepository | ORDER, ORDER_ITEM | UC-03, UC-07, UC-08 | `OrderRepository` | доріжка «Система (магазин)» |
+| PaymentRepository | PAYMENT | UC-06 | — | — |
+| DeliveryRepository | DELIVERY | UC-05, UC-09 | — | — |
+| База даних | усі сутності ER моделі | NFR-01 | — | — |
+| Payment API | PAYMENT (`provider`, `transaction_id`) | UC-06; Req-02 | — | — |
+| Nova Poshta API | DELIVERY (`branch_id`, `ttn`) | UC-05, UC-09; Req-05, Req-15, Req-16 | `Nova Poshta API` | доріжка «Nova Poshta API» |
+| Хмарне сховище | — | NFR-01 | — | — |
+
+### Залежність → джерело
+| Звідки → Куди (інтерфейс) | Джерело |
+|---|---|
+| WebUI → IRestApi | sequence: `WebUI` викликає систему; усі UC клієнта |
+| REST API → ICatalogService | UC-01, UC-02, UC-10 |
+| REST API → IAuthService | Req-07, Req-09, Req-11 |
+| REST API → ICartService | UC-13; Req-14 |
+| REST API → IOrderService | sequence: `createOrder`; UC-07, UC-08 |
+| REST API → IPaymentService | UC-06; Req-02 |
+| REST API → IDeliveryService | sequence: `getBranches`; Req-05 |
+| CatalogService → IProductRepository | Req-12, Req-13 |
+| AuthService → ICustomerRepository | Req-07…Req-10 |
+| CartService → ICartRepository | Req-14 |
+| OrderService → ICartRepository | sequence: `getCartItems`, `clearCart` |
+| OrderService → IProductRepository | sequence: `getProductForUpdate`, `decreaseStock`; Req-03 |
+| OrderService → IOrderRepository | sequence: `saveOrder`; Req-03 |
+| OrderService → IDeliveryService | sequence: `saveDelivery` |
+| PaymentService → IPaymentRepository | PAYMENT; UC-06 |
+| PaymentService → IOrderRepository | Req-02 (статус замовлення) |
+| PaymentService → IPaymentGateway | UC-06; актор Payment API |
+| DeliveryService → IDeliveryRepository | DELIVERY; Req-15 (`Delivery.ttn`) |
+| DeliveryService → IOrderRepository | Req-15 (статус «відправлене») |
+| DeliveryService → INovaPoshta | sequence: `getBranches`; Req-05, Req-15, Req-16 |
+| Репозиторії (6) → SQL | ER модель |
+| База даних → ICloudStorage | NFR-01 |
+| Payment API → IPaymentCallback | UC-06; Req-02 |

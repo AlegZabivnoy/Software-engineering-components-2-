@@ -1,0 +1,32 @@
+@startuml
+top to bottom direction
+
+rectangle "Онлайн-магазин техніки" {
+  component "WebUI" as WebUI
+  interface "IApi" as IApi
+  component "Backend" as Backend
+  interface "IPaymentCallback" as IPaymentCallback
+  interface "SQL" as ISQL
+  component "База даних" as DB
+}
+
+component "Payment API" as PayAPI <<зовнішня система>>
+interface "IPaymentGateway" as IGateway
+component "Nova Poshta API" as NPAPI <<зовнішня система>>
+interface "INovaPoshta" as INP
+component "Хмарне сховище" as Cloud <<зовнішня система>>
+interface "ICloudStorage" as ICloud
+
+WebUI .down.> IApi
+Backend -up- IApi
+Backend -right- IPaymentCallback
+PayAPI .left.> IPaymentCallback
+PayAPI -down- IGateway
+Backend .right.> IGateway
+NPAPI -up- INP
+Backend .right.> INP
+Backend .down.> ISQL
+DB -up- ISQL
+DB .right.> ICloud
+Cloud -left- ICloud
+@enduml
