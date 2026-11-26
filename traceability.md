@@ -29,6 +29,7 @@
 | Компонент          | Дані (сутності) | Вимоги / UC                                        | Взаємодія (sequence) | Процес (activity) |
 |--------------------|---|----------------------------------------------------|---|---|
 | WebUI              | — | UC-01…UC-03, UC-05…UC-08, UC-10…UC-14              | `WebUI` | доріжка «Система (магазин)» |
+| Backend            | — | контейнер: Backend API, сервіси, репозиторії       | — | доріжка «Система (магазин)» |
 | Backend API        | — | Req-11; UC-06                                      | `Backend API` | доріжка «Система (магазин)» |
 | CatalogService     | PRODUCT, CATEGORY, BRAND | UC-01, UC-02, UC-10; Req-12, Req-13                | — | — |
 | AuthService        | CUSTOMER | UC-11, UC-12; Req-07…Req-11; NFR-02                | — | — |
@@ -73,3 +74,6 @@
 | Репозиторії (6) → SQL                 | ER модель |
 | База даних → ICloudStorage            | NFR-01 |
 | Payment API → IPaymentCallback        | UC-06; Req-02 |
+| Backend → IPaymentGateway             | узагальнює `PaymentService → IPaymentGateway` |
+| Backend → INovaPoshta                 | узагальнює `DeliveryService → INovaPoshta` |
+| Backend → SQL                         | узагальнює `Репозиторії (6) → SQL` |

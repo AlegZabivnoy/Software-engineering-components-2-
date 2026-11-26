@@ -208,12 +208,13 @@ IF Nova Poshta API повертає помилку або не відповід�
 | US-02, сценарій 2: служба недоступна | [Нова Пошта] → запит → [ні] → «тимчасово недоступний, повторити спробу?» → [так] новий запит / [ні] назад до вибору доставки |
 
 ## Архітектура: компоненти та інтерфейси (Завдання 5)
-Діаграма — `Diagrams/component.puml` (рендер — `Diagrams/Component-Render.png`). Модель спирається на ER-модель, вимоги та UC, sequence і activity діаграми UC-03. Детальне трасування — у `traceability.md`
+Діаграми — оглядова `Diagrams/component-overview.puml` (рендер — `Diagrams/overview-render.png`) і зум у Backend `Diagrams/component-backend.puml` (рендер — `Diagrams/backend-render.png`).
 
 **Межа системи:** «Онлайн-магазин техніки» — усе всередині прямокутника. Зовні лишаються Payment API, Nova Poshta API і хмарне сховище, вони взаємодіють із системою лише через інтерфейси
 
 **Модулі:**
 * UI — `WebUI`: інтерфейс клієнта, гостя й менеджера
+* Backend — містить Backend API, сервіси та Data Access; на оглядовій діаграмі показаний одним компонентом
 * API/Backend — `Backend API`: приймає запити від UI, перевіряє авторизацію (Req-11), приймає результат оплати від Payment API (`IPaymentCallback`)
 * Сервіси — `CatalogService`, `AuthService`, `CartService`, `OrderService`, `PaymentService`, `DeliveryService`; кожен надає інтерфейс (`ICatalogService`, `IAuthService`, `ICartService`, `IOrderService`, `IPaymentService`, `IDeliveryService`)
 * Data Access — по одному репозиторію на групу сутностей: `CustomerRepository`, `ProductRepository`, `CartRepository`, `OrderRepository`, `PaymentRepository`, `DeliveryRepository`

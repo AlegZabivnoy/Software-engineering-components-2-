@@ -18,7 +18,7 @@
 * Мінуси: GitHub не рендерить `.puml`, потрібен окремий PNG
 
 ## Рішення
-Обрано варіант C: `Diagrams/component.puml` і рендер `Diagrams/Component-Render.png`
+Обрано варіант C: дві діаграми PlantUML — оглядова `Diagrams/component-overview.puml` і зум у Backend `Diagrams/component-backend.puml` з рендерами `overview-render.png` і `backend-render.png`
 
 ## Наслідки
 * Поруч із `.puml` лежить PNG, його треба оновлювати разом із кодом
